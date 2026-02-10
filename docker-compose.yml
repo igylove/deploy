@@ -8,8 +8,10 @@ services:
         - AUTH_SYSTEM_ENABLED=False
         - BACKEND_API_HOST=hummingbot-api
         - BACKEND_API_PORT=8000
-        - BACKEND_API_USERNAME=${USERNAME}
+        - BACKEND_API_USERNAME=${HB_USERNAME}
         - BACKEND_API_PASSWORD=${PASSWORD}
+    env_file:
+      - .env
     volumes:
       - ./credentials.yml:/home/dashboard/credentials.yml
       - ./pages:/home/dashboard/frontend/pages
@@ -26,6 +28,9 @@ services:
     env_file:
       - .env
     environment:
+      # Map HB_USERNAME from .env to USERNAME expected by the application
+      - USERNAME=${HB_USERNAME}
+      - PASSWORD=${PASSWORD}
       # Override specific values for Docker networking
       - BROKER_HOST=emqx
       - DATABASE_URL=postgresql+asyncpg://hbot:hummingbot-api@postgres:5432/hummingbot_api
@@ -54,7 +59,7 @@ services:
       - "8084:8084"  # mqtt:ws:ssl
       - "8081:8081"  # http:management
       - "18083:18083"  # http:dashboard
-      - "61613:61613"  # web-stomp gateway
+      # - "61613:61613"  # web-stomp gateway (Disabled to avoid Windows Hyper-V port conflicts)
     networks:
       emqx-bridge:
         aliases:

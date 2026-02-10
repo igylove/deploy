@@ -61,6 +61,92 @@ All services are orchestrated using Docker Compose for seamless deployment and m
    - **Database**: PostgreSQL running on `localhost:5432` (hbot/hummingbot-api)
    - **MQTT Broker**: EMQX dashboard at `localhost:18083` for real-time bot communication monitoring
 
+## 本地运行快速指引（中文）
+
+### 一、准备工作
+- 安装 Docker / Docker Desktop，并确保可以在终端执行 `docker` 和 `docker compose`。
+- **Windows 用户**：
+  - 推荐安装 WSL2 并在 Ubuntu 终端中操作。
+  - 如果使用原生 PowerShell，**需要先绕过脚本执行策略**（见下方说明）。
+
+### 二、首次运行（推荐使用一键安装脚本）
+
+#### Linux / macOS / WSL
+```bash
+bash setup.sh
+```
+
+#### Windows (PowerShell)
+如果直接运行 `.\setup.ps1` 报错“在此系统上禁止运行脚本”，请使用以下命令绕过策略执行：
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
+```
+脚本执行过程中会生成 `.env` 配置文件，并自动拉取镜像启动服务。
+
+#### 访问服务
+等脚本执行结束后，在浏览器访问：
+- Dashboard：`http://localhost:8501`
+- API Docs：`http://localhost:8000/docs`
+
+> 提示：脚本过程中会让你输入 Dashboard 用户名 / 密码等信息，直接回车即可使用默认值 `admin`，也可以按需自定义。
+
+### 三、后续每天使用（一键启动脚本）
+
+#### Linux / macOS / WSL
+```bash
+bash start.sh
+```
+
+#### Windows (PowerShell)
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start.ps1
+```
+或者如果你已经永久修改了执行策略，直接运行 `.\start.ps1`。
+
+如需停止所有服务，可以执行：
+```bash
+docker compose down
+```
+
+### 四、完全手动运行方式（不用脚本也可以）
+如果你更喜欢完全手动控制，也可以只使用 Docker Compose：
+
+1. **首次运行：**
+   - 确保已经有 `.env` 文件（可以先执行一次 `bash setup.sh` 生成；或者自己手工创建，参考 `setup.sh` 中写入 `.env` 的字段）。
+   - 在项目根目录执行：
+     ```bash
+     docker compose pull
+     docker pull hummingbot/hummingbot:latest
+     docker compose up -d
+     ```
+
+2. **之后每天启动：**
+   ```bash
+   docker compose up -d
+   ```
+
+3. **查看日志：**
+   ```bash
+   docker compose logs -f
+   ```
+
+4. **停止并关闭：**
+   ```bash
+   docker compose down
+   ```
+
+### 五、可选配置：安全和云存储
+
+- **Dashboard 登录账号**：可以通过修改项目根目录的 `credentials.yml` 来调整默认用户名 / 密码，然后在 `docker-compose.yml` 中将 `AUTH_SYSTEM_ENABLED` 设置为 `True`，再重新运行 `bash setup.sh` 或 `bash start.sh`。
+- **AWS/S3 相关配置**：如果需要把数据备份到 S3，可以：
+  - 直接编辑 `.env` 文件中的 `AWS_API_KEY`、`AWS_SECRET_KEY` 和 `AWS_S3_DEFAULT_BUCKET_NAME` 字段；
+  - 或者修改 `setup.sh` 中对应的变量后重新执行一次。
+
+以上就是本地运行和一键启动的简要中文说明，你可以直接记住两个常用命令：
+
+- 首次安装和启动：`bash setup.sh`
+- 之后每天启动：`bash start.sh`
+
 ## Authentication
 
 Authentication is disabled by default. To enable Dashboard Authentication please follow the steps below: 
